@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>時こくと時間 一問一答</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF8EF;
+    --bg-deep-green:#1E6C93;
+    --ink:#2A2E35;
+    --navy:#2F6B73;
+    --navy-deep:#1F4D54;
+    --amber:#E08E45;
+    --green:#5C8F6E;
+    --red:#D2604E;
+    --line:#D8D2C2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg-deep-green);
+    color:var(--ink);
+    font-family:'Zen Maru Gothic', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px;
+  }
+  .app{
+    width:100%;
+    max-width:460px;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+    padding:0 4px;
+  }
+  .title{
+    font-weight:900;
+    font-size:18px;
+    color:var(--navy-deep);
+    letter-spacing:.02em;
+  }
+  .score{
+    font-family:'DotGothic16', monospace;
+    font-size:20px;
+    color:var(--navy);
+    background:#fff;
+    border:2px solid var(--line);
+    border-radius:10px;
+    padding:4px 10px;
+    min-width:64px;
+    text-align:center;
+  }
+  .progress-track{
+    height:8px;
+    background:#E7E2D4;
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--amber);
+    border-radius:6px;
+    transition:width .35s ease;
+  }
+  .card{
+    background:var(--paper);
+    border-radius:20px;
+    border:1px solid var(--line);
+    box-shadow:0 6px 0 var(--line);
+    padding:28px 22px 24px;
+    min-height:340px;
+    display:flex;
+    flex-direction:column;
+  }
+  .qnum{
+    font-family:'DotGothic16', monospace;
+    color:var(--amber);
+    font-size:14px;
+    letter-spacing:.05em;
+    margin-bottom:6px;
+  }
+  .question{
+    font-size:18px;
+    font-weight:700;
+    line-height:1.6;
+    color:var(--ink);
+    margin-bottom:18px;
+  }
+  .clocks-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    margin-bottom:18px;
+  }
+  .clock-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  .clock-label{
+    font-size:15px;
+    color:#7A7568;
+    font-weight:500;
+  }
+  .arrow{
+    font-size:22px;
+    color:var(--amber);
+  }
+  .answer-area{
+    margin-top:auto;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .hm-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .hm-field{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  input[type=number]{
+    width:74px;
+    font-family:'DotGothic16', monospace;
+    font-size:22px;
+    text-align:center;
+    padding:10px 6px;
+    border:2px solid var(--line);
+    border-radius:10px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  input[type=number]:focus{
+    outline:none;
+    border-color:var(--navy);
+  }
+  input[type=number].active-field{
+    border-color:var(--navy);
+    box-shadow:0 0 0 3px rgba(47,107,115,0.18);
+  }
+  input[type=number][readonly]{
+    caret-color:transparent;
+    cursor:pointer;
+  }
+  .unit{
+    font-size:16px;
+    font-weight:700;
+    color:var(--navy-deep);
+  }
+  .choice-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .choice-btn{
+    flex:1;
+    min-width:80px;
+    padding:12px 10px;
+    font-size:16px;
+    font-weight:700;
+    font-family:inherit;
+    border:2px solid var(--navy);
+    color:var(--navy-deep);
+    background:#fff;
+    border-radius:12px;
+    cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .choice-btn:active{
+    background:var(--navy);
+    color:#fff;
+  }
+  .choice-btn.selected{
+    background:var(--navy);
+    color:#fff;
+  }
+  .main-btn{
+    width:100%;
+    padding:13px;
+    font-size:16px;
+    font-weight:900;
+    font-family:inherit;
+    color:#fff;
+    background:var(--navy);
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    letter-spacing:.03em;
+  }
+  .main-btn:disabled{
+    background:#C9C3B2;
+    cursor:not-allowed;
+  }
+  .main-btn.next{
+    background:var(--amber);
+  }
+  .feedback{
+    text-align:center;
+    font-weight:700;
+    font-size:15px;
+    padding:10px;
+    border-radius:10px;
+    min-height:20px;
+  }
+  .feedback.correct{
+    background:#E7F1E9;
+    color:var(--green);
+  }
+  .feedback.wrong{
+    background:#FBE9E5;
+    color:var(--red);
+  }
+  .result-card{
+    text-align:center;
+  }
+  .result-score{
+    font-family:'DotGothic16', monospace;
+    font-size:48px;
+    color:var(--navy-deep);
+    margin:18px 0 6px;
+  }
+  .result-sub{
+    color:#7A7568;
+    margin-bottom:22px;
+  }
+  .start-screen{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:100%;
+  }
+  .start-clock-wrap{
+    margin-bottom:18px;
+  }
+  .start-title{
+    font-size:22px;
+    font-weight:900;
+    color:var(--navy-deep);
+    line-height:1.5;
+    margin-bottom:10px;
+  }
+  .start-sub{
+    font-size:14px;
+    color:#7A7568;
+    line-height:1.7;
+    margin-bottom:26px;
+    max-width:280px;
+  }
+  .start-btn{
+    width:100%;
+    max-width:220px;
+    padding:16px;
+    font-size:18px;
+    font-weight:900;
+    font-family:inherit;
+    color:#fff;
+    background:var(--amber);
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    letter-spacing:.05em;
+    box-shadow:0 5px 0 #C77836;
+  }
+  .start-btn:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 #C77836;
+  }
+  .topbar.hidden, .progress-track.hidden{
+    display:none;
+  }
+  .order-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .order-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:8px 4px 6px;
+  }
+  .order-item .clock-key{
+    font-weight:900;
+    color:var(--navy-deep);
+    font-size:13px;
+  }
+  .order-item .clock-label{
+    font-size:13px;
+  }
+  .seq-slots{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .seq-slot{
+    width:38px;
+    height:38px;
+    border:2px dashed var(--line);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    font-size:18px;
+    color:var(--navy-deep);
+    background:#fff;
+  }
+  .seq-slot.filled{
+    border-style:solid;
+    border-color:var(--navy);
+  }
+  .seq-arrow{
+    color:var(--amber);
+    font-size:16px;
+  }
+  .order-btn{
+    min-width:54px;
+  }
+  .order-btn:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+  }
+  .seq-reset{
+    background:none;
+    border:none;
+    color:#9A9486;
+    font-size:13px;
+    text-decoration:underline;
+    cursor:pointer;
+    font-family:inherit;
+    align-self:center;
+    margin-bottom:4px;
+  }
+  .display-box{
+    min-width:64px;
+    min-height:50px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'DotGothic16', monospace;
+    font-size:26px;
+    color:var(--navy);
+    background:#fff;
+    border:2px solid var(--navy);
+    border-radius:10px;
+    padding:0 12px;
+    cursor:pointer;
+  }
+  .display-box.selected{
+    box-shadow:0 0 0 3px rgba(47,107,115,0.15);
+  }
+  .display-box.filled{
+    color:var(--navy-deep);
+    font-weight:700;
+  }
+  .keypad{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin:14px auto 0;
+    background:#FBF8EF;
+    border-radius:14px;
+    padding:12px;
+    max-width:260px;
+    width:100%;
+  }
+  .key{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:19px;
+    font-weight:700;
+    color:#5C3D1E;
+    background:#fff;
+    border:2px solid #F0CD6E;
+    border-radius:12px;
+    padding:13px 0;
+    cursor:pointer;
+    box-shadow:0 4px 0 #DCAE3E;
+  }
+  .key:active{
+    transform:translateY(3px);
+    box-shadow:0 1px 0 #DCAE3E;
+  }
+  .key:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    transform:none;
+  }
+  .key-c{
+    background:#EFAAB0;
+    border-color:#E59BA1;
+    box-shadow:0 4px 0 #D4838A;
+    color:#fff;
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:700;
+    font-size:16px;
+  }
+  .key-enter{
+    background:#9C6B30;
+    border-color:#8A5B26;
+    box-shadow:0 4px 0 #6E4A1D;
+    color:#fff;
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar hidden" id="topbar">
+    <div class="title">時こくと時間 一問一答</div>
+    <div class="score" id="scoreDisplay">0 / 0</div>
+  </div>
+  <div class="progress-track hidden" id="progressTrack"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="card" id="quizCard"></div>
+</div>
+
+<script>
+/* ---------- 乱数ユーティリティ ---------- */
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function randMult5(min,max){
+  const lo = Math.ceil(min/5), hi = Math.floor(max/5);
+  return randInt(lo,hi)*5;
+}
+function pickFrom(arr){ return arr[randInt(0,arr.length-1)]; }
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = randInt(0,i);
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function formatTime12(h,m){
+  let ap, h12;
+  if(h < 12){ ap='午前'; h12 = (h===0)?12:h; }
+  else { ap='午後'; h12 = (h===12)?12:h-12; }
+  return `${ap}${h12}時${m>0 ? m+'分' : ''}`;
+}
+
+/* ---------- 問題ジェネレーター（毎回スタート時に数値をランダム生成） ---------- */
+function genStartEndMinutes(qtext){
+  const dur = randMult5(5,45);
+  const startM = randMult5(0, 59-dur);
+  const endM = startM+dur;
+  const h = randInt(1,11);
+  return { type:'number', q:qtext, unit:'分', answer:dur,
+    clocks:[[h,startM,'はじめ'],[h,endM,'おわり']] };
+}
+function genHourToHourMinute(){
+  const h = randInt(1,12);
+  const m = randMult5(5,55);
+  return { type:'number', q:`${h}時から${h}時${m}分までは何分間ですか。`, unit:'分', answer:m,
+    clocks:[[h,0,`${h}時`],[h,m,`${h}時${m}分`]] };
+}
+function genToNextHour(){
+  const h = randInt(1,11);
+  const m = randMult5(5,55);
+  const nh = h+1;
+  return { type:'number', q:`${h}時${m}分から${nh}時までは何分間ですか。`, unit:'分', answer:60-m,
+    clocks:[[h,m,`${h}時${m}分`],[nh,0,`${nh}時`]] };
+}
+function genSameHourArbitrary(){
+  const h = randInt(1,12);
+  const m1 = randInt(0,50);
+  const m2 = randInt(m1+1,59);
+  return { type:'number', q:`${h}時${m1}分から${h}時${m2}分までは何分間ですか。`, unit:'分', answer:m2-m1,
+    clocks:[[h,m1,`${h}時${m1}分`],[h,m2,`${h}時${m2}分`]] };
+}
+function genMorningAM(){
+  const h = randInt(5,11);
+  return { type:'choice', q:`朝${h}時に おきるのは、午前・午後のどちらですか。`, options:['午前','午後'], answer:'午前',
+    clocks:[[h,0,`朝${h}時`]] };
+}
+function genNightPM(){
+  const h = randInt(7,11);
+  return { type:'choice', q:`夜${h}時に ねるのは、午前・午後のどちらですか。`, options:['午前','午後'], answer:'午後',
+    clocks:[[h,0,`夜${h}時`]] };
+}
+function genClockOffset(){
+  while(true){
+    const h = randInt(1,11);
+    const m = randMult5(0,55);
+    const kind = pickFrom(['hourAfter','minAfter','minBefore']);
+    const nowLabel = `${h}時${m>0 ? m+'分' : ''}`;
+    if(kind==='hourAfter'){
+      const amt = randInt(1,3);
+      const ah = h+amt;
+      if(ah>12) continue;
+      return { type:'clock_hm', q:`今の時こくは${nowLabel}です。${amt}時間後の時こくは何時何分ですか。`,
+        answer:[ah,m], clocks:[[h,m,'今']] };
+    } else if(kind==='minAfter'){
+      const amt = randMult5(5,50);
+      const total = m+amt;
+      const ah = total>=60 ? h+1 : h;
+      const am = total>=60 ? total-60 : total;
+      if(ah>12) continue;
+      return { type:'clock_hm', q:`今の時こくは${nowLabel}です。${amt}分後の時こくは何時何分ですか。`,
+        answer:[ah,am], clocks:[[h,m,'今']] };
+    } else {
+      const amt = randMult5(5,50);
+      const total = m-amt;
+      const bh = total<0 ? h-1 : h;
+      const bm = total<0 ? total+60 : total;
+      if(bh<1) continue;
+      return { type:'clock_hm', q:`今の時こくは${nowLabel}です。${amt}分前の時こくは何時何分ですか。`,
+        answer:[bh,bm], clocks:[[h,m,'今']] };
+    }
+  }
+}
+function genDurationToHM(){
+  const minutes = randMult5(5,55);
+  const total = 60+minutes;
+  return { type:'duration_hm', q:`${total}分は何時間何分ですか。`, answer:[1,minutes] };
+}
+function genHMToMinutes(){
+  const minutes = randMult5(5,55);
+  return { type:'number', q:`1時間${minutes}分は何分ですか。`, unit:'分', answer:60+minutes };
+}
+function genOrderQuestion(qtext, animalDefs){
+  const keys = ['あ','い','う','え'];
+  const used = new Set();
+  const times = [];
+  while(times.length<4){
+    const h = randInt(8,15);
+    const m = pickFrom([0,30]);
+    const tk = h*60+m;
+    if(used.has(tk)) continue;
+    used.add(tk);
+    times.push({h,m});
+  }
+  const shuffledTimes = shuffleArr(times);
+  const items = keys.map((key,i)=>{
+    const t = shuffledTimes[i];
+    return { key, name:animalDefs[i].name, animal:animalDefs[i].animal, h:t.h, m:t.m, label:formatTime12(t.h,t.m) };
+  });
+  const answer = items.slice().sort((a,b)=>(a.h*60+a.m)-(b.h*60+b.m)).map(it=>it.key);
+  return { type:'order', q:qtext, items, answer };
+}
+
+const ZOO_ANIMALS = [
+  { name:'かば', animal:'hippo' },
+  { name:'らくだ', animal:'camel' },
+  { name:'ペンギン', animal:'penguin' },
+  { name:'ぞう', animal:'elephant' },
+];
+const AQUARIUM_ANIMALS = [
+  { name:'ペンギン', animal:'penguin' },
+  { name:'タコ', animal:'octopus' },
+  { name:'イルカ', animal:'dolphin' },
+  { name:'ジンベエザメ', animal:'whaleshark' },
+];
+
+function buildQuestions(){
+  return [
+    genStartEndMinutes('はじめから終わりまでは何分間ですか。'),
+    genStartEndMinutes('はじめからおわりまでは何分間ですか。'),
+    genHourToHourMinute(),
+    genToNextHour(),
+    genSameHourArbitrary(),
+    genMorningAM(),
+    genNightPM(),
+    { type:'choice', q:'お昼12時は、午前・正午・午後のどれですか。', options:['午前','正午','午後'], answer:'正午',
+      clocks:[[12,0,'お昼12時']] },
+    { type:'number', q:'1日は何時間ですか。', unit:'時間', answer:24,
+      clocks:[[12,0,'朝0時'],[12,0,'夜24時']] },
+    { type:'number', q:'午前は何時間ですか。', unit:'時間', answer:12,
+      clocks:[[12,0,'夜中0時'],[12,0,'お昼12時']] },
+    genClockOffset(),
+    genClockOffset(),
+    genClockOffset(),
+    genClockOffset(),
+    genClockOffset(),
+    genClockOffset(),
+    genClockOffset(),
+    genClockOffset(),
+    { type:'number', q:'1時間は何分ですか。', unit:'分', answer:60,
+      clocks:[[12,0,'長いはりが1しゅう']] },
+    genDurationToHM(),
+    genDurationToHM(),
+    genHMToMinutes(),
+    genHMToMinutes(),
+    genOrderQuestion('はるかさんは どうぶつ園に 行きました。はるかさんは、どの じゅんに まわりましたか。', ZOO_ANIMALS),
+    genOrderQuestion('みさきさんは すいぞくかんに 行きました。みさきさんは、どの じゅんに まわりましたか。', AQUARIUM_ANIMALS),
+  ];
+}
+
+let QUESTIONS = [];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+const quizCard = document.getElementById('quizCard');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const progressFill = document.getElementById('progressFill');
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+
+/* ---------- サウンド（Web Audio API で合成） ---------- */
+let audioCtx;
+function getCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, startOffset, duration, type, gainVal){
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  osc.connect(gain).connect(ctx.destination);
+  const t0 = ctx.currentTime + startOffset;
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(gainVal, t0 + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.03);
+}
+function playCorrectSound(){
+  // ピンポン（明るい2音）
+  playTone(988, 0,    0.20, 'sine', 0.20);
+  playTone(784, 0.17, 0.32, 'sine', 0.20);
+}
+function playWrongSound(){
+  // ペコ（やわらかく短い、ピッチが落ちる音）
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  const t0 = ctx.currentTime;
+  osc.frequency.setValueAtTime(420, t0);
+  osc.frequency.exponentialRampToValueAtTime(220, t0 + 0.14);
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(0.20, t0 + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + 0.2);
+}
+function playStartSound(){
+  // 軽快な3音の上昇チャイム
+  playTone(523, 0,    0.14, 'sine', 0.20);
+  playTone(659, 0.10, 0.14, 'sine', 0.20);
+  playTone(784, 0.20, 0.22, 'sine', 0.20);
+}
+function playOpeningTheme(){
+  // オープニング曲（約10秒）：明るく かわいらしい メロディー＋やわらかいベース
+  const melody = [
+    [523.25,0.30],[659.25,0.30],[783.99,0.30],[1046.50,0.55],
+    [783.99,0.30],[659.25,0.30],[523.25,0.30],[587.33,0.30],
+    [659.25,0.30],[698.46,0.30],[783.99,0.55],[659.25,0.30],
+    [523.25,0.30],[587.33,0.30],[523.25,0.55],
+    [659.25,0.30],[783.99,0.30],[880.00,0.30],[783.99,0.30],
+    [659.25,0.30],[783.99,0.30],[880.00,0.30],
+    [1046.50,0.55],[880.00,0.30],[783.99,0.30],[659.25,0.30],[523.25,1.00],
+  ];
+  let t = 0;
+  melody.forEach(([freq,dur])=>{
+    playTone(freq, t, dur*0.92, 'sine', 0.16);
+    t += dur;
+  });
+  const bass = [
+    [261.63,2.2],[392.00,2.2],[261.63,2.2],[349.23,1.2],[261.63,2.0],
+  ];
+  let bt = 0;
+  bass.forEach(([freq,dur])=>{
+    playTone(freq, bt, dur*0.9, 'triangle', 0.07);
+    bt += dur;
+  });
+}
+let openingPlayed = false;
+function startOpeningThemeIfNeeded(){
+  if(openingPlayed) return;
+  const ctx = getCtx();
+  if(ctx.state === 'suspended'){
+    ctx.resume().then(()=>{
+      if(!openingPlayed && ctx.state === 'running'){
+        openingPlayed = true;
+        playOpeningTheme();
+      }
+    }).catch(()=>{});
+  } else {
+    openingPlayed = true;
+    playOpeningTheme();
+  }
+}
+
+/* ---------- アナログ時計 SVG ---------- */
+function clockSVG(hour, minute, size){
+  size = size || 140;
+  const cx=70, cy=70, r=62;
+  const minuteAngle = minute*6;
+  const hourAngle = (hour%12)*30 + minute*0.5;
+  function pt(angleDeg, len){
+    const rad = (angleDeg-90)*Math.PI/180;
+    return [cx + len*Math.cos(rad), cy + len*Math.sin(rad)];
+  }
+  let ticks='';
+  for(let i=0;i<60;i++){
+    const ang = i*6;
+    const isHour = i%5===0;
+    const outer = r-3;
+    const inner = isHour ? r-11 : r-7;
+    const [ox,oy] = pt(ang, outer);
+    const [ix,iy] = pt(ang, inner);
+    ticks += `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="#2A2E35" stroke-width="${isHour?2:1}" stroke-linecap="round"/>`;
+  }
+  let numbers='';
+  for(let i=1;i<=12;i++){
+    const ang = i*30;
+    const [tx,ty] = pt(ang, r-24);
+    numbers += `<text x="${tx}" y="${ty+4}" text-anchor="middle" font-size="11" font-family="Zen Maru Gothic" fill="#2A2E35" font-weight="500">${i}</text>`;
+  }
+  const [hx,hy] = pt(hourAngle, r*0.52);
+  const [mx,my] = pt(minuteAngle, r*0.8);
+  return `
+  <svg width="${size}" height="${size}" viewBox="0 0 140 140">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff" stroke="#2F6B73" stroke-width="2"/>
+    ${ticks}
+    ${numbers}
+    <line x1="${cx}" y1="${cy}" x2="${hx}" y2="${hy}" stroke="#2F6B73" stroke-width="5" stroke-linecap="round"/>
+    <line x1="${cx}" y1="${cy}" x2="${mx}" y2="${my}" stroke="#D2604E" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="4.5" fill="#E08E45"/>
+  </svg>`;
+}
+
+/* ---------- どうぶつのイラスト（シンプルなフラットスタイル） ---------- */
+function animalIcon(type, size){
+  size = size || 96;
+  let inner = '';
+  if(type === 'hippo'){
+    inner = `
+      <ellipse cx="50" cy="48" rx="6" ry="7" fill="#2F6B73"/>
+      <ellipse cx="68" cy="48" rx="6" ry="7" fill="#2F6B73"/>
+      <ellipse cx="59" cy="60" rx="26" ry="20" fill="#3E7D85"/>
+      <ellipse cx="59" cy="58" rx="20" ry="13" fill="#3E7D85"/>
+      <circle cx="50" cy="54" r="3" fill="#2A2E35"/>
+      <circle cx="68" cy="54" r="3" fill="#2A2E35"/>
+      <ellipse cx="59" cy="66" rx="9" ry="5" fill="#2A2E35"/>`;
+  } else if(type === 'camel'){
+    inner = `
+      <path d="M30 72 Q34 38 44 46 Q49 32 55 46 Q61 36 66 50 L72 30 L76 50 Q78 60 70 72 Z" fill="#E08E45"/>
+      <circle cx="71" cy="38" r="3" fill="#2A2E35"/>
+      <line x1="34" y1="74" x2="34" y2="84" stroke="#E08E45" stroke-width="6" stroke-linecap="round"/>
+      <line x1="46" y1="76" x2="46" y2="86" stroke="#E08E45" stroke-width="6" stroke-linecap="round"/>
+      <line x1="62" y1="76" x2="62" y2="86" stroke="#E08E45" stroke-width="6" stroke-linecap="round"/>`;
+  } else if(type === 'penguin'){
+    inner = `
+      <ellipse cx="50" cy="58" rx="17" ry="25" fill="#2A2E35"/>
+      <ellipse cx="50" cy="62" rx="9" ry="16" fill="#ffffff"/>
+      <circle cx="50" cy="33" r="12" fill="#2A2E35"/>
+      <circle cx="46" cy="31" r="1.8" fill="#ffffff"/>
+      <circle cx="54" cy="31" r="1.8" fill="#ffffff"/>
+      <path d="M44 37 L56 37 L50 43 Z" fill="#E08E45"/>`;
+  } else if(type === 'elephant'){
+    inner = `
+      <ellipse cx="38" cy="48" rx="12" ry="15" fill="#6F9097"/>
+      <ellipse cx="62" cy="48" rx="12" ry="15" fill="#6F9097"/>
+      <ellipse cx="50" cy="56" rx="25" ry="20" fill="#7FA1A7"/>
+      <path d="M62 64 Q72 70 66 82" stroke="#7FA1A7" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <circle cx="44" cy="52" r="2.6" fill="#2A2E35"/>
+      <circle cx="58" cy="52" r="2.6" fill="#2A2E35"/>`;
+  } else if(type === 'dolphin'){
+    inner = `
+      <path d="M20 64 C26 44 46 36 64 42 C70 34 80 36 85 45 C78 50 70 49 65 46 C71 55 66 66 54 70 L57 80 L48 78 L46 68 C37 72 26 70 20 64 Z" fill="#5B96B8"/>
+      <path d="M44 42 Q49 30 57 40 Q50 42 44 42 Z" fill="#5B96B8"/>
+      <circle cx="66" cy="46" r="2.3" fill="#2A2E35"/>`;
+  } else if(type === 'whaleshark'){
+    inner = `
+      <path d="M16 58 Q14 44 30 40 Q55 34 78 44 Q86 47 88 56 Q86 65 78 68 Q55 78 30 72 Q14 68 16 58 Z" fill="#4A7FA5"/>
+      <path d="M30 40 L24 26 L34 38 Z" fill="#4A7FA5"/>
+      <path d="M22 58 L8 50 L10 58 L8 66 L22 60 Z" fill="#4A7FA5"/>
+      <ellipse cx="80" cy="58" rx="5" ry="3.5" fill="#2A2E35"/>
+      <circle cx="46" cy="50" r="2" fill="#ffffff"/>
+      <circle cx="56" cy="54" r="2" fill="#ffffff"/>
+      <circle cx="66" cy="50" r="2" fill="#ffffff"/>
+      <circle cx="50" cy="62" r="2" fill="#ffffff"/>
+      <circle cx="62" cy="64" r="2" fill="#ffffff"/>
+      <circle cx="38" cy="60" r="2" fill="#ffffff"/>`;
+  } else if(type === 'octopus'){
+    inner = `
+      <path d="M30 56 Q26 70 32 80" stroke="#D2604E" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M40 60 Q38 76 44 84" stroke="#D2604E" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M50 62 Q50 78 50 86" stroke="#D2604E" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M60 60 Q62 76 56 84" stroke="#D2604E" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M70 56 Q74 70 68 80" stroke="#D2604E" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="42" rx="23" ry="20" fill="#D2604E"/>
+      <circle cx="42" cy="40" r="4.5" fill="#2A2E35"/>
+      <circle cx="58" cy="40" r="4.5" fill="#2A2E35"/>
+      <circle cx="43" cy="39" r="1.6" fill="#ffffff"/>
+      <circle cx="59" cy="39" r="1.6" fill="#ffffff"/>`;
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="#ffffff" stroke="#2F6B73" stroke-width="2"/>
+    ${inner}
+  </svg>`;
+}
+
+/* ---------- 数字テンキー ---------- */
+function keypadHTML(){
+  return `
+    <div class="keypad" id="keypad">
+      <button class="key" data-num="7">7</button>
+      <button class="key" data-num="8">8</button>
+      <button class="key" data-num="9">9</button>
+      <button class="key" data-num="4">4</button>
+      <button class="key" data-num="5">5</button>
+      <button class="key" data-num="6">6</button>
+      <button class="key" data-num="1">1</button>
+      <button class="key" data-num="2">2</button>
+      <button class="key" data-num="3">3</button>
+      <button class="key key-c" id="keyClear">C</button>
+      <button class="key" data-num="0">0</button>
+      <button class="key key-enter" id="checkBtn">こたえる</button>
+    </div>
+    <button class="main-btn next" id="nextBtn" style="display:none;"></button>`;
+}
+function setupKeypad(fieldIds){
+  let active = fieldIds[0];
+  const inputs = {};
+  fieldIds.forEach(id=>{
+    const el = document.getElementById(id);
+    inputs[id] = el;
+    el.addEventListener('click', ()=>{ active = id; updateActive(); });
+  });
+  function updateActive(){
+    fieldIds.forEach(id=> inputs[id].classList.toggle('active-field', id===active));
+  }
+  updateActive();
+  document.querySelectorAll('#keypad .key[data-num]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const el = inputs[active];
+      let val = el.value || '';
+      if(val.length>=3) return;
+      val += btn.dataset.num;
+      val = val.replace(/^0+(?=\d)/,'');
+      el.value = val;
+    });
+  });
+  const clearBtn = document.getElementById('keyClear');
+  if(clearBtn) clearBtn.addEventListener('click', ()=>{ inputs[active].value=''; });
+}
+
+/* ---------- 表示 ---------- */
+function renderQuestion(){
+  answered = false;
+  const item = QUESTIONS[current];
+  progressFill.style.width = (current/QUESTIONS.length*100) + '%';
+  scoreDisplay.textContent = `${score} / ${current}`;
+
+  let visualHTML = '';
+  if(item.type === 'order'){
+    visualHTML = `<div class="order-grid">${item.items.map(it=>`
+      <div class="order-item">
+        ${animalIcon(it.animal, 92)}
+        <div class="clock-key">${it.key}　${it.name}</div>
+        <div class="clock-label">${it.label}</div>
+      </div>`).join('')}</div>`;
+  } else if(item.clocks && item.clocks.length){
+    const pieces = item.clocks.map(([h,m,label])=>
+      `<div class="clock-wrap">${clockSVG(h,m)}<div class="clock-label">${label}</div></div>`
+    );
+    visualHTML = `<div class="clocks-row">${pieces.join('<div class="arrow">→</div>')}</div>`;
+  }
+
+  let answerHTML = '';
+  if(item.type === 'number'){
+    answerHTML = `
+      <div class="hm-row">
+        <input type="number" id="ans1" inputmode="numeric" readonly>
+        <span class="unit">${item.unit}</span>
+      </div>
+      ${keypadHTML()}`;
+  } else if(item.type === 'clock_hm'){
+    answerHTML = `
+      <div class="hm-row">
+        <div class="hm-field"><input type="number" id="ans1" inputmode="numeric" readonly><span class="unit">時</span></div>
+        <div class="hm-field"><input type="number" id="ans2" inputmode="numeric" readonly><span class="unit">分</span></div>
+      </div>
+      ${keypadHTML()}`;
+  } else if(item.type === 'duration_hm'){
+    answerHTML = `
+      <div class="hm-row">
+        <div class="hm-field"><input type="number" id="ans1" inputmode="numeric" readonly><span class="unit">時間</span></div>
+        <div class="hm-field"><input type="number" id="ans2" inputmode="numeric" readonly><span class="unit">分</span></div>
+      </div>
+      ${keypadHTML()}`;
+  } else if(item.type === 'choice'){
+    answerHTML = `
+      <div class="choice-row" id="choiceRow">
+        ${item.options.map((opt,i)=>`<button class="choice-btn" data-opt="${opt}">${opt}</button>`).join('')}
+      </div>
+      <button class="main-btn" id="checkBtn" disabled>答え合わせ</button>`;
+  } else if(item.type === 'order'){
+    answerHTML = `
+      <div class="seq-slots" id="seqSlots">
+        ${item.items.map((it,i)=>`${i>0?'<span class="seq-arrow">⇨</span>':''}<div class="seq-slot" id="slot${i}"></div>`).join('')}
+      </div>
+      <div class="choice-row" id="orderButtons">
+        ${item.items.map(it=>`<button class="choice-btn order-btn" data-key="${it.key}">${it.key}</button>`).join('')}
+      </div>
+      <button class="seq-reset" id="seqReset">やり直す</button>
+      <button class="main-btn" id="checkBtn" disabled>答え合わせ</button>`;
+  }
+
+  quizCard.innerHTML = `
+    <div class="qnum">問題 ${current+1} / ${QUESTIONS.length}</div>
+    <div class="question">${item.q}</div>
+    ${visualHTML}
+    <div class="answer-area">
+      ${answerHTML}
+      <div class="feedback" id="feedback"></div>
+    </div>
+  `;
+
+  if(item.type === 'choice'){
+    let selected = null;
+    document.querySelectorAll('.choice-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selected = btn.dataset.opt;
+        document.getElementById('checkBtn').disabled = false;
+      });
+    });
+    document.getElementById('checkBtn').addEventListener('click', ()=>checkAnswer(selected));
+  } else if(item.type === 'order'){
+    let seq = [];
+    function refreshSlots(){
+      item.items.forEach((it,i)=>{
+        const slot = document.getElementById('slot'+i);
+        if(seq[i]){
+          slot.textContent = seq[i];
+          slot.classList.add('filled');
+        } else {
+          slot.textContent = '';
+          slot.classList.remove('filled');
+        }
+      });
+      document.getElementById('checkBtn').disabled = seq.length !== item.items.length;
+    }
+    document.querySelectorAll('.order-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(seq.length >= item.items.length || answered) return;
+        seq.push(btn.dataset.key);
+        btn.disabled = true;
+        refreshSlots();
+      });
+    });
+    document.getElementById('seqReset').addEventListener('click', ()=>{
+      seq = [];
+      document.querySelectorAll('.order-btn').forEach(b=>b.disabled=false);
+      refreshSlots();
+    });
+    document.getElementById('checkBtn').addEventListener('click', ()=>checkAnswer(seq.slice()));
+  } else {
+    const fieldIds = document.getElementById('ans2') ? ['ans1','ans2'] : ['ans1'];
+    setupKeypad(fieldIds);
+    document.getElementById('checkBtn').addEventListener('click', ()=>{
+      const a1 = document.getElementById('ans1').value;
+      const a2 = document.getElementById('ans2') ? document.getElementById('ans2').value : null;
+      checkAnswer(a2!==null ? [Number(a1), Number(a2)] : Number(a1));
+    });
+  }
+}
+
+function checkAnswer(given){
+  if(answered) return;
+  answered = true;
+  const item = QUESTIONS[current];
+  let correct = false;
+  let correctText = '';
+
+  if(item.type === 'number'){
+    correct = given === item.answer;
+    correctText = `${item.answer}${item.unit}`;
+  } else if(item.type === 'clock_hm'){
+    correct = given[0] === item.answer[0] && given[1] === item.answer[1];
+    correctText = `${item.answer[0]}時${item.answer[1]===0?'':item.answer[1]+'分'}`.trim();
+    if(item.answer[1]===0) correctText = `${item.answer[0]}時`;
+  } else if(item.type === 'duration_hm'){
+    correct = given[0] === item.answer[0] && given[1] === item.answer[1];
+    correctText = `${item.answer[0]}時間${item.answer[1]}分`;
+  } else if(item.type === 'choice'){
+    correct = given === item.answer;
+    correctText = item.answer;
+  } else if(item.type === 'order'){
+    correct = given.length === item.answer.length && given.every((k,i)=>k===item.answer[i]);
+    correctText = item.answer.join('⇨');
+  }
+
+  if(correct) score++;
+  scoreDisplay.textContent = `${score} / ${current+1}`;
+  progressFill.style.width = ((current+1)/QUESTIONS.length*100) + '%';
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+
+  document.querySelectorAll('input, .choice-btn, .key').forEach(el=>el.disabled = true);
+  const seqResetBtn = document.getElementById('seqReset');
+  if(seqResetBtn) seqResetBtn.disabled = true;
+
+  const keypad = document.getElementById('keypad');
+  const nextBtn = document.getElementById('nextBtn');
+  const checkBtn = document.getElementById('checkBtn');
+  const nextText = current === QUESTIONS.length-1 ? 'けっかをみる' : '次の問題へ';
+
+  if(correct){
+    playCorrectSound();
+    nextQuestion();
+  } else {
+    playWrongSound();
+    fb.textContent = `正解は ${correctText} です`;
+    if(keypad){
+      keypad.style.display = 'none';
+      nextBtn.style.display = '';
+      nextBtn.textContent = nextText;
+      nextBtn.addEventListener('click', nextQuestion);
+    } else {
+      checkBtn.style.display = '';
+      checkBtn.classList.add('next');
+      checkBtn.disabled = false;
+      checkBtn.textContent = nextText;
+      checkBtn.replaceWith(checkBtn.cloneNode(true));
+      document.getElementById('checkBtn').addEventListener('click', nextQuestion);
+    }
+  }
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= QUESTIONS.length){
+    renderResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function renderResult(){
+  progressFill.style.width = '100%';
+  quizCard.innerHTML = `
+    <div class="result-card">
+      <div class="question" style="margin-bottom:0;">おつかれさま！</div>
+      <div class="result-score">${score} / ${QUESTIONS.length}</div>
+      <div class="result-sub">もんだいが ぜんぶ おわりました</div>
+      <button class="main-btn" id="retryBtn">もう一度やる</button>
+    </div>
+  `;
+  document.getElementById('retryBtn').addEventListener('click', ()=>{
+    current = 0; score = 0;
+    renderStart();
+  });
+}
+
+/* ---------- オープニング画面 ---------- */
+function renderStart(){
+  document.getElementById('topbar').classList.add('hidden');
+  document.getElementById('progressTrack').classList.add('hidden');
+  quizCard.innerHTML = `
+    <div class="start-screen">
+      <div class="start-clock-wrap">${clockSVG(10,10,170)}</div>
+      <div class="start-title">時こくと時間<br>一問一答</div>
+      <div class="start-sub">時計をよみとって、時こくと時間の問題に1問ずつ チャレンジしよう！</div>
+      <button class="start-btn" id="startBtn">はじめる</button>
+    </div>
+  `;
+  startOpeningThemeIfNeeded();
+  document.addEventListener('pointerdown', startOpeningThemeIfNeeded, {once:true});
+  document.getElementById('startBtn').addEventListener('click', ()=>{
+    document.getElementById('topbar').classList.remove('hidden');
+    document.getElementById('progressTrack').classList.remove('hidden');
+    QUESTIONS = buildQuestions();
+    current = 0; score = 0;
+    renderQuestion();
+  });
+}
+
+renderStart();
+</script>
+</body>
+</html>
